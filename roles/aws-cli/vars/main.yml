@@ -1,0 +1,8 @@
+---
+# vars file for aws-cli
+aws_system_user: ubuntu
+aws_profile: default
+aws_access_key: "enterAccessKeys"
+aws_secret_key: "enterSecretAccessKeys"
+aws_region: us-east-1
+aws_format: table

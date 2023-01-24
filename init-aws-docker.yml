@@ -1,0 +1,11 @@
+- hosts: all
+  name: Setup Docker
+  roles: 
+    - { role: configure-docker, tags: configure-docker } 
+  become: yes
+
+- hosts: all
+  name: Setup awscli & configure it 
+  roles:
+    - { role: aws-cli, tags: aws-cli}
+  become: yes
