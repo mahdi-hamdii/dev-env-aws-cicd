@@ -33,4 +33,4 @@ jobs:
    - name: init and apply
      run: |
           terraform init
-          terraform apply -var 'private_key_path=/home/runner/work/dhs_backend_node/dhs_backend_node/private_key.pem' -auto-approve
+          terraform apply -var 'private_key_path=/home/runner/work/dev-env-aws-cicd/private_key.pem' -auto-approve
