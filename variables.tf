@@ -22,3 +22,8 @@ variable "aws_access_key" {
 variable "aws_secret_key" {
   type = string
 }
+
+variable "ami_id" {
+  type    = string
+  default = "ami-0afd55c0c8a52973a"
+}

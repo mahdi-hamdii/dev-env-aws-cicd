@@ -34,7 +34,7 @@ data "aws_key_pair" "web_server_ssh_key" {
 }
 
 resource "aws_instance" "web_server" {
-  ami             = "ami-00874d747dde814fa"
+  ami             = var.ami_id
   instance_type   = "t2.micro"
   key_name        = data.aws_key_pair.web_server_ssh_key.key_name
   security_groups = [aws_security_group.allow_ssh.name]
