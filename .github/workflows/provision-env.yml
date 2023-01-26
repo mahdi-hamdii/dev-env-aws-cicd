@@ -30,8 +30,8 @@ jobs:
      run: echo "$PRIVATE_KEY" > private_key.pem
    - name: init and apply
      env:
-        AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        TF_VAR_aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        TF_VAR_AWS_SECRET_ACCESS: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
      run: |
           terraform init
-          terraform apply -var 'private_key_path=/home/runner/work/dhs_backend_node/dhs_backend_node/private_key.pem' -var 'aws_access_key="$AWS_ACCESS_KEY"' -var 'aws_access_key="$AWS_SECRET_ACCESS"' -auto-approve
+          terraform apply -var 'private_key_path=/home/runner/work/dhs_backend_node/dhs_backend_node/private_key.pem' -auto-approve
