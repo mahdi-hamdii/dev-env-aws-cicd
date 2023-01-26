@@ -34,6 +34,9 @@ data "aws_key_pair" "web_server_ssh_key" {
 }
 
 resource "aws_instance" "web_server" {
+  depends_on = [
+    aws_security_group.allow_ssh
+  ]
   ami             = var.ami_id
   instance_type   = "t2.micro"
   key_name        = data.aws_key_pair.web_server_ssh_key.key_name
