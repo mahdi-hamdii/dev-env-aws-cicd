@@ -1,0 +1,64 @@
+prepare-env:
+    needs: [ "build" ]
+    runs-on: ubuntu-22.04
+    env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    outputs:
+      publicIP: ${{ steps.publicIP.outputs.ip }}
+      testID: ${{ steps.testID.outputs.testID }}
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+        with:
+          repository: 'dark-horse-stocks/terraform-test-env-cicd'
+          ref: 'main'
+          token: ${{ secrets.GH_TOKEN }}
+      
+      - name: Setup Terraform CLI
+        uses: hashicorp/setup-terraform@v2
+      
+      - name: Add the private key
+        env:
+          PRIVATE_KEY: ${{ secrets.CICD_PRIVATE_KEY }}
+        run: echo "$PRIVATE_KEY" > private_key.pem
+  
+      - name: init and apply
+        run: |
+          terraform init
+          terraform apply -var 'private_key_location=/home/runner/work/dhs_backend_node/dhs_backend_node/private_key.pem' -auto-approve
+      
+      - name: public ip
+        id: publicIP
+        run: echo ip=`terraform output | awk -F= '{print $2}' | awk -F\" '{print $2}'` >> $GITHUB_OUTPUT
+
+      - name: test
+        id: testID
+        run: echo "testID=mahdi" >> $GITHUB_OUTPUT
+deploy:
+    needs: [ "prepare-env" ]
+    runs-on: ubuntu-22.04
+    steps:
+
+      - name: Public Outputs
+        run: echo ${{ needs.prepare-env.outputs.publicIP }}
+     
+      - name: Set Public IP of the server as an env variable
+        run: echo PUBLIC_IP=`echo "${{ needs.prepare-env.outputs.publicIP }}" | awk '{print $1}'` >> $GITHUB_ENV
+      
+      - name: Public IP of the server
+        run: echo ${{ env.PUBLIC_IP }}
+
+      - name: Deploying to EC2 
+        uses: appleboy/ssh-action@v0.1.6
+        env:
+          IMAGE_TAG: test
+        with:
+          host: ${{ env.PUBLIC_IP }}
+          username: ec2-user
+          key: ${{ secrets.CICD_PRIVATE_KEY }}
+          port: "22"
+          script: |
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY }}:${{ env.IMAGE_TAG }}
+            docker kill dhs-backend-node || echo "Deploying ..."
+            docker run --name dhs-backend-node --rm -d -p 8000:8000 ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY }}:${{ env.IMAGE_TAG }}

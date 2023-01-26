@@ -1,6 +1,5 @@
 locals {
-  ssh_user         = "ubuntu"
-  private_key_path = "./ubuntu.pem"
+  ssh_user = "ubuntu"
 }
 resource "aws_security_group" "allow_ssh" {
   name        = "allow_tls"
@@ -29,7 +28,7 @@ resource "aws_security_group" "allow_ssh" {
 }
 
 data "aws_key_pair" "web_server_ssh_key" {
-  key_name           = "ubuntu"
+  key_name           = "terraz"
   include_public_key = true
 
   filter {
@@ -65,7 +64,7 @@ resource "null_resource" "example" {
     connection {
       type        = "ssh"
       user        = local.ssh_user
-      private_key = file(local.private_key_path)
+      private_key = file(var.private_key_path)
       host        = aws_instance.web_server.public_ip
     }
 
@@ -74,6 +73,6 @@ resource "null_resource" "example" {
   }
 
   provisioner "local-exec" {
-    command = "ansible-playbook -i inventory-result.ini --private-key ${local.private_key_path} init-aws-docker.yml"
+    command = "ansible-playbook --extra-vars=\"aws_access_key=${var.aws_access_key}\" --extra-vars=\"aws_secret_key=${var.aws_secret_key}\" -i inventory-result.ini --private-key ${var.private_key_path} init-aws-docker.yml"
   }
 }

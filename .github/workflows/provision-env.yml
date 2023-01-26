@@ -1,0 +1,37 @@
+name: "Terraform provision"
+
+on:
+  push:
+    branches:
+      - staging
+  workflow_dispatch:
+jobs:
+  terraform:
+   name: "Terraform provision env"
+   runs-on: ubuntu-latest
+   env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+   steps:
+   - name: Get code
+     uses: actions/checkout@v3
+# This pipeline will be later launech from the repo in which the code is stored and we will have to fetch the terraform and ansible
+# from this repo
+    #  with:
+    #     repository: 'mahdi-hamdii/dev-env-aws-cicd'
+    #     ref: 'main'
+    #     token: ${{ secrets.GH_TOKEN }}
+      
+   - name: Setup Terraform CLI
+     uses: hashicorp/setup-terraform@v2 
+   - name: Add the private key
+     env:
+        PRIVATE_KEY: ${{ secrets.CICD_PRIVATE_KEY }}
+     run: echo "$PRIVATE_KEY" > private_key.pem
+   - name: init and apply
+     env:
+        AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+     run: |
+          terraform init
+          terraform apply -var 'private_key_path=/home/runner/work/dhs_backend_node/dhs_backend_node/private_key.pem' -var 'aws_access_key="$AWS_ACCESS_KEY"' -var 'aws_access_key="$AWS_SECRET_ACCESS"' -auto-approve
