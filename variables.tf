@@ -7,7 +7,7 @@ variable "region" {
 variable "vpc_id" {
   type        = string
   description = "default VPC ID"
-  default     = "vpc-0425a48a4ec05fc5f"
+  default     = "vpc-038a5336a2f78db83"
 }
 
 variable "private_key_path" {
