@@ -31,10 +31,6 @@ data "aws_key_pair" "web_server_ssh_key" {
   key_name           = "terraz"
   include_public_key = true
 
-  filter {
-    name   = "tag:name"
-    values = ["github"]
-  }
 }
 
 resource "aws_instance" "web_server" {
