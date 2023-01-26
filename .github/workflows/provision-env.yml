@@ -30,10 +30,10 @@ jobs:
      env:
         PRIVATE_KEY: ${{ secrets.CICD_PRIVATE_KEY }}
      run: echo "$PRIVATE_KEY" > private_key.pem
-   - name: echo location
-     run: ls 
-   - name: echo path 
-     run: ls /home/runner/work/dev-env-aws-cicd/
+
+   - name: Change Private Key permissions
+     run: chmod 400 /home/runner/work/dev-env-aws-cicd/dev-env-aws-cicd/private_key.pem
+
    - name: init and apply
      run: |
           terraform init
